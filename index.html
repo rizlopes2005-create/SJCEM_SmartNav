@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+  <meta name="theme-color" content="#0d1a14">
+  <meta name="description" content="SJCEM SmartNav — Smart campus navigation for St. John College of Engineering and Management, Palghar. Find your way around campus with live GPS tracking.">
+  <title>SJCEM SmartNav</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- ── Topbar ──────────────────────────────────────────── -->
+  <header class="topbar">
+    <a class="brand" href="#">
+      <span class="brand-mark">S<span>+</span></span>
+      <span><strong>SJCEM</strong><small>SMART CAMPUS NAVIGATION</small></span>
+    </a>
+
+    <div class="topbar-note">
+      <span class="live-dot"></span>
+      Campus wayfinding
+      <span class="topbar-divider">·</span>
+      Palghar
+    </div>
+
+    <div class="topbar-actions">
+      <!-- GPS toggle -->
+      <button class="icon-button" id="gpsButton" aria-label="Toggle GPS tracking" title="Toggle live GPS">
+        <span class="gps-dot"></span>
+        <span>GPS</span>
+      </button>
+      <!-- About -->
+      <button class="icon-button" id="helpButton" aria-label="About this demo" title="About SmartNav">i</button>
+    </div>
+  </header>
+
+  <!-- ── GPS status bar ──────────────────────────────────── -->
+  <div id="gpsStatusBar">
+    <span class="gps-bar-dot"></span>
+    <span id="gpsStatusText">Locating you…</span>
+    <span id="gpsAccText"></span>
+  </div>
+
+  <!-- ── Main layout ─────────────────────────────────────── -->
+  <main class="layout">
+
+    <!-- Intro -->
+    <section class="intro">
+      <div class="eyebrow"><span class="eyebrow-line"></span> FIND YOUR WAY</div>
+      <h1>Campus, made<br><em>easy to find.</em></h1>
+      <p class="intro-copy">Pick a place, choose where you're starting, and get simple directions across campus — with live GPS tracking.</p>
+    </section>
+
+    <!-- Planner card -->
+    <section class="planner card" aria-label="Plan a campus route">
+      <div class="planner-heading">
+        <div>
+          <span class="section-kicker">YOUR ROUTE</span>
+          <h2>Where to?</h2>
+        </div>
+        <span class="route-spark">✳</span>
+      </div>
+
+      <label class="field-label" for="destination">DESTINATION</label>
+      <div class="search-wrap">
+        <span class="search-icon">⌕</span>
+        <input id="destination" type="search" placeholder="Search a place, room or facility…" autocomplete="off">
+        <button id="clearSearch" class="clear-search" aria-label="Clear search">×</button>
+      </div>
+
+      <div class="quick-label">QUICK PICKS</div>
+      <div id="quickPicks" class="quick-picks"></div>
+
+      <div class="field-divider"></div>
+      <div class="field-row">
+        <label class="field-label" for="start">STARTING POINT</label>
+        <button id="scanButton" class="text-button">▦ <span>Scan QR</span></button>
+      </div>
+      <div class="select-wrap">
+        <span class="pin-icon">⌖</span>
+        <select id="start" aria-label="Starting point"></select>
+        <span class="select-chevron">⌄</span>
+      </div>
+
+      <div class="access-row">
+        <div>
+          <strong>Accessible route</strong>
+          <small>Avoid stairs where possible</small>
+        </div>
+        <label class="switch">
+          <input id="accessible" type="checkbox">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <button id="routeButton" class="route-button">
+        <span>Find my route</span>
+        <span class="button-arrow">→</span>
+      </button>
+      <p class="privacy-note">No sign-in needed <span>·</span> Works on your phone</p>
+    </section>
+
+    <!-- Map card -->
+    <section class="map-card card" aria-label="Campus route map">
+      <div class="map-header">
+        <div>
+          <span class="section-kicker">CAMPUS MAP</span>
+          <h2 id="mapTitle">Explore campus</h2>
+        </div>
+        <div class="map-controls">
+          <button id="resetMap" class="map-control" title="Reset map" aria-label="Reset map">⤢</button>
+        </div>
+      </div>
+
+      <div class="map-viewport" id="mapViewport">
+        <div class="map-grid"></div>
+
+        <!-- GPS accuracy ring (CSS positioned) -->
+        <div id="gpsRing"></div>
+
+        <!-- Pan/zoom wrapper -->
+        <div id="mapWrapper">
+          <svg id="campusMap" viewBox="0 0 720 440"
+               role="img" aria-label="Schematic campus map showing locations and paths">
+            <g id="mapPaths"></g>
+            <g id="mapRoute"></g>
+            <g id="mapBuildings"></g>
+            <g id="mapNodes"></g>
+            <!-- GPS user marker -->
+            <g id="gpsMarker">
+              <circle class="gps-outer" cx="0" cy="0" r="16"/>
+              <polygon id="gpsHeading" points="0,-20 -6,-10 6,-10" fill="rgba(90,180,255,0.7)"/>
+              <circle class="gps-inner" cx="0" cy="0" r="7"/>
+            </g>
+          </svg>
+        </div>
+
+        <div class="map-compass" id="mapCompass">
+          <span>N</span><b>↑</b>
+        </div>
+
+        <!-- Recenter button -->
+        <button id="recenterBtn" aria-label="Re-center map on your location" title="Re-center">◎</button>
+
+        <div id="mapHint" class="map-hint">
+          <span class="hint-pin">⌖</span>
+          <span>
+            <strong>Choose a destination</strong>
+            <small>Your route will appear here</small>
+          </span>
+        </div>
+      </div>
+
+      <div class="map-legend">
+        <span><i class="legend-dot start-dot"></i>Start</span>
+        <span><i class="legend-dot end-dot"></i>Destination</span>
+        <span><i class="legend-dot gps-legend-dot"></i>You</span>
+        <span><i class="legend-line"></i>Route</span>
+        <span class="demo-label"><i></i> SAMPLE MAP</span>
+      </div>
+
+      <div id="routeDetails" class="route-details" hidden></div>
+    </section>
+
+    <section class="bottom-note">
+      <span class="note-icon">✳</span>
+      <p><strong>Help us make this map accurate.</strong> This prototype uses sample locations. Update <code>campus-data.js</code> with verified campus buildings, paths and distances before relying on it for directions.</p>
+      <a href="README.md">How to edit <span>→</span></a>
+    </section>
+
+    <footer>Built for St. John College of Engineering and Management <span>·</span> SmartNav prototype</footer>
+  </main>
+
+  <!-- ── Live navigation panel (mobile slide-up) ─────────── -->
+  <div id="navPanel" role="status" aria-live="polite">
+    <div class="panel-handle"></div>
+    <div class="nav-step" id="navStepText">Starting navigation…</div>
+    <div class="nav-dist" id="navDistText"></div>
+    <div class="nav-sub"  id="navSubText"></div>
+    <div class="nav-progress">
+      <div class="nav-progress-bar" id="navProgressBar" style="width:0%"></div>
+    </div>
+    <div class="nav-actions">
+      <button class="nav-btn" id="navPrevBtn">← Prev</button>
+      <button class="nav-btn" id="navNextBtn">Next →</button>
+      <button class="nav-btn danger" id="navEndBtn">End</button>
+    </div>
+  </div>
+
+  <!-- ── QR dialog ────────────────────────────────────────── -->
+  <dialog id="qrDialog" class="modal">
+    <form method="dialog"><button class="modal-close" aria-label="Close">×</button></form>
+    <div class="modal-icon">▦</div>
+    <span class="section-kicker">QR START POINT</span>
+    <h2>Set where you are</h2>
+    <p>Scan a campus location QR code with your camera, or enter its code below.</p>
+    <div class="camera-area">
+      <video id="cameraVideo" playsinline></video>
+      <button id="cameraButton" class="secondary-button" type="button">Open camera</button>
+    </div>
+    <div class="or-divider"><span>OR ENTER CODE</span></div>
+    <form id="qrForm">
+      <input id="qrInput" placeholder="e.g. main_gate" autocomplete="off">
+      <button class="route-button" type="submit">
+        Set starting point <span class="button-arrow">→</span>
+      </button>
+    </form>
+    <p class="qr-feedback" id="qrFeedback" aria-live="polite"></p>
+  </dialog>
+
+  <!-- ── About dialog ─────────────────────────────────────── -->
+  <dialog id="aboutDialog" class="modal about-modal">
+    <form method="dialog"><button class="modal-close" aria-label="Close">×</button></form>
+    <div class="modal-icon">i</div>
+    <span class="section-kicker">ABOUT SMARTNAV</span>
+    <h2>Campus navigation, prototype edition.</h2>
+    <p>This browser-only demo shows the core idea: campus places connected by walkable paths, with Dijkstra routing, live GPS tracking, QR start points, and an accessible route option.</p>
+    <p class="notice-box">The included map and distances are sample data based on the SJCEM campus sketch. Confirm the real locations and connections before use for real directions.</p>
+    <button class="route-button" id="aboutOk">Got it <span class="button-arrow">→</span></button>
+  </dialog>
+
+  <!-- ── Toast ────────────────────────────────────────────── -->
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="campus-data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
